@@ -1,24 +1,34 @@
-//
-//  ContentView.swift
-//  LPU Live
-//
-//  Created by Hritu Raj on 26/11/25.
-//
-
 import SwiftUI
 
 struct ContentView: View {
+    @EnvironmentObject var authService: AuthService
+    @EnvironmentObject var themeManager: ThemeManager
+    @State private var showSplash = true
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        ZStack {
+            if showSplash {
+                SplashScreenView()
+                    .transition(.opacity)
+            } else {
+                SwiftUI.Group {
+                    if authService.isAuthenticated {
+                        MainTabView()
+                    } else {
+                        SignInView()
+                    }
+                }
+                .accentColor(DesignSystem.Colors.primary)
+                .transition(.opacity)
+            }
         }
-        .padding()
+        .onAppear {
+            // Hide splash screen after 2 seconds
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                withAnimation(.easeInOut(duration: 0.5)) {
+                    showSplash = false
+                }
+            }
+        }
     }
-}
-
-#Preview {
-    ContentView()
 }
